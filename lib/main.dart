@@ -1,4 +1,5 @@
 import 'package:eje5_login_firebase/src/blocs/login_Inheritedwidget.dart';
+import 'package:eje5_login_firebase/src/pages/agregar_producto_page.dart';
 import 'package:eje5_login_firebase/src/pages/homepage.dart';
 import 'package:eje5_login_firebase/src/pages/loginpage.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +16,11 @@ class MyApp extends StatelessWidget {
           primaryColor: Colors.deepPurple
         ),
         debugShowCheckedModeBanner: false,
-        initialRoute: 'login',
+        initialRoute: 'home',
         routes: {
           'login': (context) => LoginPage(),
-          'home': (context) => HomePage()
+          'home': (context) => HomePage(),
+          'productos':(context)=>PaginaAgregarProductos(),
         },
       ),
     );
