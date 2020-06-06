@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:eje5_login_firebase/src/modelos/modelo_producto.dart';
 import 'package:eje5_login_firebase/src/servicios/firebase_conexion.dart';
 import 'package:eje5_login_firebase/src/utilidades/utilidades.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PaginaAgregarProductos extends StatefulWidget {
   const PaginaAgregarProductos({Key key}) : super(key: key);
@@ -12,7 +15,12 @@ class PaginaAgregarProductos extends StatefulWidget {
 
 class _PaginaAgregarProductosState extends State<PaginaAgregarProductos> {
   final keyForm = GlobalKey<FormState>();
+  final snackKey = GlobalKey<ScaffoldState>();
   final llamarFireBase = FirebaseDB();
+  bool _cargando = false;
+  File foto;
+  PickedFile pikerFile;
+
 
   ModeloProductos producto = ModeloProductos();
 
@@ -25,16 +33,17 @@ class _PaginaAgregarProductosState extends State<PaginaAgregarProductos> {
     }
 
     return Scaffold(
+      key: snackKey,
       appBar: AppBar(
         title: Text('Nuevo Producto'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.photo_size_select_actual),
-            onPressed: () {},
+            onPressed: () => _galeriaCamara(ImageSource.gallery),
           ),
           IconButton(
             icon: Icon(Icons.camera_alt),
-            onPressed: () {},
+            onPressed: () => _galeriaCamara(ImageSource.camera),
           ),
         ],
       ),
@@ -45,6 +54,7 @@ class _PaginaAgregarProductosState extends State<PaginaAgregarProductos> {
               key: keyForm,
               child: Column(
                 children: <Widget>[
+                  _mostrarFoto(),
                   _ingresaNombreProd(context),
                   SizedBox(
                     height: 15.0,
@@ -112,20 +122,40 @@ class _PaginaAgregarProductosState extends State<PaginaAgregarProductos> {
       ),
       label: Text('Guardar Producto'),
       textColor: Colors.white,
-      onPressed: _enviarDatos,
+      onPressed: _cargando ? null : _enviarDatos,
     );
   }
 
-  void _enviarDatos() {
+  void _enviarDatos() async {
+    setState(() {
+      _cargando = true;
+    });
+
     if (!keyForm.currentState.validate()) return null;
 
     keyForm.currentState.save();
 
+    //Subida de la Imagen
+
+    if (foto != null) {
+      //cuando se resuelva el future devolvera la respuesta del url secure de la foto subida
+      final resp = await llamarFireBase.subirImagen(File(foto.path));
+      producto.fotoUrl = resp;
+    }
+
+    //Subida de datos firebase!
     if (producto.id == null) {
       llamarFireBase.crearNuevoProducto(producto);
+      _mostrarSnackBar('Guardado Exitoso!');
     } else {
       llamarFireBase.modificarProducto(producto);
+      _mostrarSnackBar('Cambio Guardado!');
     }
+
+    Future.delayed(Duration(milliseconds: 1500)).then((value) {
+      _cargando = false;
+      Navigator.pop(context);
+    });
   }
 
   _crearSwitchDisponible() {
@@ -138,5 +168,43 @@ class _PaginaAgregarProductosState extends State<PaginaAgregarProductos> {
         });
       },
     );
+  }
+
+  _mostrarSnackBar(String mensaje) {
+    final snack = SnackBar(
+      duration: Duration(milliseconds: 2500),
+      content: Text(mensaje),
+    );
+    snackKey.currentState.showSnackBar(snack);
+  }
+
+  _galeriaCamara(ImageSource tipo) async {
+    pikerFile = await ImagePicker().getImage(source: tipo);
+    if( pikerFile != null ){
+      foto = File(pikerFile.path);
+      producto.fotoUrl= null;
+    }else{
+      foto = null;
+    }
+    setState(() {});
+  }
+
+  Widget _mostrarFoto() {
+    if (producto.fotoUrl != null) {
+      return FadeInImage(
+        placeholder: AssetImage('assets/images/jar-loading.gif'),
+        image: NetworkImage(producto.fotoUrl),
+        fit: BoxFit.cover,
+        height: 250.0,
+      );
+    } else {
+      return Image(
+        //pregunta si tiene informacion? y si tiene el path
+        //si tiene el path pero es null ?? entonces usara la foto interna
+        image: AssetImage(foto?.path ?? 'assets/images/no-image.png'),
+        fit: BoxFit.cover,
+        height: 250.0,
+      );
+    }
   }
 }
