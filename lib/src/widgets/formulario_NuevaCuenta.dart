@@ -1,8 +1,8 @@
 import 'package:eje5_login_firebase/src/blocs/login_Inheritedwidget.dart';
 import 'package:flutter/material.dart';
 
-class FormularioIngreso extends StatelessWidget {
-  const FormularioIngreso({Key key}) : super(key: key);
+class FormularioNuevaCuenta extends StatelessWidget {
+  const FormularioNuevaCuenta({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +35,9 @@ class FormularioIngreso extends StatelessWidget {
           ),
           FlatButton(
             onPressed: () {
-              Navigator.pushReplacementNamed(context, 'nuevaCuenta');
+               Navigator.pushReplacementNamed(context, 'login');
             },
-            child: Text('¿Crear Nueva Cuenta?'),
+            child: Text('¿Ya tiene cuenta? Iniciar Sesion'),
           )
         ],
       ),
@@ -53,7 +53,7 @@ class CajaFormulario extends StatelessWidget {
     return Column(
       children: <Widget>[
         Text(
-          'Ingreso',
+          'Nueva Cuenta',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

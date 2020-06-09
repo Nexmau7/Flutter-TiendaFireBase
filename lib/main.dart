@@ -1,5 +1,6 @@
 import 'package:eje5_login_firebase/src/blocs/login_Inheritedwidget.dart';
 import 'package:eje5_login_firebase/src/pages/agregar_producto_page.dart';
+import 'package:eje5_login_firebase/src/pages/crearCuentapage.dart';
 import 'package:eje5_login_firebase/src/pages/homepage.dart';
 import 'package:eje5_login_firebase/src/pages/loginpage.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +17,12 @@ class MyApp extends StatelessWidget {
           primaryColor: Colors.deepPurple
         ),
         debugShowCheckedModeBanner: false,
-        initialRoute: 'home',
+        initialRoute: 'nuevaCuenta',
         routes: {
           'login': (context) => LoginPage(),
           'home': (context) => HomePage(),
           'productos':(context)=>PaginaAgregarProductos(),
+          'nuevaCuenta':(context)=>NuevaCuentaPage()
         },
       ),
     );
